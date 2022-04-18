@@ -16,8 +16,8 @@ contract Adapter {
     uint[] amounts;
 
 
-    address internal constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
-    address internal constant UNISWAP_FACTORY_ADDRESS = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    //address internal constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    //address internal constant UNISWAP_FACTORY_ADDRESS = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
 
     IUniswapV2Router02 public router;
     IUniswapV2Factory public factory;
@@ -25,16 +25,17 @@ contract Adapter {
     Counters.Counter private _pairsIds;
 
     mapping(address => address) public pairs;
+    mapping(uint256 => address) public idToPair;    
 
-    constructor() {
+    constructor(address UNISWAP_ROUTER_ADDRESS, address UNISWAP_FACTORY_ADDRESS) { //
         router = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS);
         factory = IUniswapV2Factory(UNISWAP_FACTORY_ADDRESS);
     }
 
     function createPair(address tkn1, address tkn2) public{
-        //_pairsIds.increment();
-        //idToPair[_pairsIds.current()] = factory.createPair(tkn1, tkn2);
-        factory.createPair(tkn1, tkn2);
+        _pairsIds.increment();
+        idToPair[_pairsIds.current()] = factory.createPair(tkn1, tkn2);
+        
         pairs[tkn1] = tkn2;
         pairs[tkn2] = tkn1;
     }
@@ -103,6 +104,10 @@ contract Adapter {
 
     function getWeth() public view returns(address){
         return router.WETH();
+    }
+
+    function getPair(uint256 id)public view returns(address){
+        return idToPair[id];
     }
 
 
